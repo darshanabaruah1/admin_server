@@ -2,6 +2,9 @@ from fastapi import APIRouter,Depends,status,HTTPException
 from routers import schemas
 import database,models
 from sqlalchemy.orm import Session
+from routers import Hash
+
+
 router=APIRouter(tags=['Authentication'])
 
 
@@ -13,7 +16,7 @@ def register(request:schemas.Register,db: Session=Depends(database.get_db)):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f"Already Exists")
     else:
         new_user = models.User(
-        name=request.name, email=request.email, password=request.password)
+        name=request.name, email=request.email, password=Hash.bcrypt(request.password))
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
